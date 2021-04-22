@@ -28,6 +28,7 @@ public class Main {
             List<User> matchingUsers = userReader.readAllUsersMatching(inputStream);
             UserRestClient userRestClient = new UserApacheClient();
             userRestClient.sendUsers(matchingUsers);
+            log.info("Finished sent {} lines", matchingUsers.size());
         }
     }
 
