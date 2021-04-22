@@ -17,14 +17,12 @@ import java.util.List;
 @Slf4j
 public class UserApacheClient implements UserRestClient {
 
-    private final CloseableHttpClient client;
+    public static final String URL = "http://54.70.230.245:80";
     private final ObjectMapper objectMapper;
 
 
     public UserApacheClient() {
-        this.client = HttpClients.createDefault();
         this.objectMapper = new ObjectMapper();
-
     }
 
     @Override
@@ -34,10 +32,10 @@ public class UserApacheClient implements UserRestClient {
     }
 
     private void sendUser(User user) {
-        HttpPost httpPost = new HttpPost("http://54.70.230.245:80");
-        String json = null;
-        try {
-            json = objectMapper.writeValueAsString(user);
+        HttpPost httpPost = new HttpPost(URL);
+         try {
+             final CloseableHttpClient client = HttpClients.createDefault();
+             String json = objectMapper.writeValueAsString(user);
             StringEntity entity = new StringEntity(json);
             httpPost.setEntity(entity);
             httpPost.setHeader("Accept", "application/json");
@@ -46,6 +44,7 @@ public class UserApacheClient implements UserRestClient {
             if (response.getStatusLine().getStatusCode() != 200) {
                 log.warn("There was problem with sending request {} - payload {}. Response status {}.", httpPost, json, response);
             }
+            client.close();
         } catch (JsonProcessingException e) {
             log.error("Error during serializing user.", e);
         } catch (UnsupportedEncodingException e) {
