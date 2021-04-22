@@ -8,7 +8,8 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.StandardHttpRequestRetryHandler;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -27,15 +28,24 @@ public class UserApacheClient implements UserRestClient {
 
     @Override
     public void sendUsers(List<User> users) {
-        users.forEach(this::sendUser);
-
+        int count = 0;
+        for (User user : users) {
+            sendUser(user);
+            ++count;
+            if (count % 1000 == 0) {
+                log.info("Sent {} users.", count);
+            }
+        }
     }
 
     private void sendUser(User user) {
         HttpPost httpPost = new HttpPost(URL);
-         try {
-             final CloseableHttpClient client = HttpClients.createDefault();
-             String json = objectMapper.writeValueAsString(user);
+        try {
+            final CloseableHttpClient client = HttpClientBuilder
+                    .create()
+                    .setRetryHandler(new StandardHttpRequestRetryHandler(10, true))
+                    .build();
+            String json = objectMapper.writeValueAsString(user);
             StringEntity entity = new StringEntity(json);
             httpPost.setEntity(entity);
             httpPost.setHeader("Accept", "application/json");
