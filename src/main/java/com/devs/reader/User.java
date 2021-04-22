@@ -32,6 +32,6 @@ public class User {
     private List<String> param7;
     @JsonProperty("param8")
     private List<String> param8;
-    @JsonProperty("param9")
+    @JsonProperty("param0")
     private List<String> param0;
 }
